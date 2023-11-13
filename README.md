@@ -1,6 +1,6 @@
 # Dictionary Web App
 
-A simple web application that allows users to search for the meaning, synonyms, and antonyms of English words.
+A simple flask web application that allows users to search for the meaning, synonyms, and antonyms of English words.
 
 ## Features
 
