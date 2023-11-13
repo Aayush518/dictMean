@@ -1,7 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, request
-import time
+
+# Import NLTK module
+import nltk
+nltk.download('wordnet')
+from nltk.corpus import wordnet
 
 app = Flask(__name__)
 
@@ -21,6 +25,13 @@ def get_dictionary_results(word):
     soup = BeautifulSoup(html, 'html.parser')
 
     wd = soup.find('div', class_="di-title")
+    if wd is None:
+        suggestion_elements = soup.select('.suggestions-list .suggestion-link')
+        suggested_words = [suggestion.text.strip() for suggestion in suggestion_elements]
+        if suggested_words:
+            return None, f"No results found for '{word}'. Did you mean: {', '.join(suggested_words)}?"
+        return None, f"No results found for '{word}'."
+
     part_of_speech = soup.find('div', class_="posgram dpos-g hdib lmr-5")
     meanings = soup.find_all('div', class_='ddef_h')
 
@@ -31,6 +42,21 @@ def get_dictionary_results(word):
     }
 
     return word_result, None
+
+def get_synonyms(word):
+    synonyms = []
+    for synset in wordnet.synsets(word):
+        for lemma in synset.lemmas():
+            synonyms.append(lemma.name())
+    return list(set(synonyms))
+
+def get_antonyms(word):
+    antonyms = []
+    for synset in wordnet.synsets(word):
+        for lemma in synset.lemmas():
+            if lemma.antonyms():
+                antonyms.append(lemma.antonyms()[0].name())
+    return list(set(antonyms))
 
 @app.route('/')
 def index():
@@ -44,7 +70,13 @@ def search():
     if error:
         return render_template('index.html', error=error)
 
-    return render_template('result.html', result=result)
+    if result is None:
+        return render_template('index.html', suggestion=error)
+
+    synonyms = get_synonyms(word)
+    antonyms = get_antonyms(word)
+
+    return render_template('result.html', result=result, word=word, synonyms=synonyms, antonyms=antonyms)
 
 if __name__ == '__main__':
     app.run(debug=True)
