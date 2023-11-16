@@ -43,6 +43,6 @@ A simple flask web application that allows users to search for the meaning, syno
 ## Usage
 
 1. Enter a word in the search bar and click "Search."
-2. View the meaning, part of speech, and definitions.
+2. View the meaning, part of speech, IPA transcriptions and definitions.
 3. Optionally, explore synonyms and antonyms.
 
