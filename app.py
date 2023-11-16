@@ -1,10 +1,9 @@
+# app.py
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, render_template, request
-
-# Import NLTK module
+from phonetics import text_to_ipa  # Import the text_to_ipa function
 import nltk
-nltk.download('wordnet')
 from nltk.corpus import wordnet
 
 app = Flask(__name__)
@@ -76,7 +75,10 @@ def search():
     synonyms = get_synonyms(word)
     antonyms = get_antonyms(word)
 
-    return render_template('result.html', result=result, word=word, synonyms=synonyms, antonyms=antonyms)
+    # Add IPA transcription to the result
+    ipa_transcription = text_to_ipa(word)
+
+    return render_template('result.html', result=result, word=word, synonyms=synonyms, antonyms=antonyms, ipa_transcription=ipa_transcription)
 
 if __name__ == '__main__':
     app.run(debug=True)
