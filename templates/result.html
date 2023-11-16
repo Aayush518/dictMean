@@ -1,3 +1,4 @@
+<!-- result.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -80,6 +81,9 @@
                 {% endfor %}
             </ul>
             
+            <!-- Display IPA Transcription -->
+            <p class="lead"><strong>IPA Transcription:</strong> {{ ipa_transcription }}</p>
+
             {% if synonyms or antonyms %}
                 <div class="synonyms-antonyms">
                     {% if synonyms %}
