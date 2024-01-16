@@ -23,7 +23,7 @@ A simple flask web application that allows users to search for the meaning, syno
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/dictionary-web-app.git
+    git clone https://github.com/Aayush518/dictionary-web-app.git
     ```
 
 2. Install the required Python packages:
