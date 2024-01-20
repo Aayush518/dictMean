@@ -1,84 +1,98 @@
-# app.py
-import requests
-from bs4 import BeautifulSoup
-from flask import Flask, render_template, request
-from phonetics import text_to_ipa  # Import the text_to_ipa function
-import nltk
-from nltk.corpus import wordnet
+<!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Dictionary Web App</title>
+     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+     <style>
+         body {
+             background-color: #f8f9fa;
+         }
+         .navbar {
+             background-color: rgb(59, 65, 59);
+         }
+         .container {
+             background-color: #fff;
+             border-radius: 8px;
+             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+             padding: 20px;
+             margin-top: 30px;
+             opacity: 0;
+             animation: fadeInUp 0.5s ease-out forwards;
+         }
 
-app = Flask(__name__)
+         .list-group-item {
+             transition: background-color 0.3s ease;
+         }
+         .list-group-item:hover {
+             background-color: #26313d;
+             color: #fff;
+         }
 
-def get_dictionary_results(word):
-    url = 'https://dictionary.cambridge.org/dictionary/english/' + word
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-    }
+         /* Update the button color */
+         .btn-search {
+             background-color: green;
+             color: #fff;
+         }
 
-    try:
-        r = requests.get(url, headers=headers)
-        r.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        return None, str(e)
+         @keyframes fadeInUp {
+             from {
+                 opacity: 0;
+                 transform: translateY(20px);
+             }
+             to {
+                 opacity: 1;
+                 transform: translateY(0);
+             }
+         }
+     </style>
+ </head>
+ <body>
+     <nav class="navbar navbar-expand-lg navbar-dark">
+         <a class="navbar-brand" href="#">Dictionary App</a>
+         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" onclick="toggleNavbar()">
+             <span class="navbar-toggler-icon"></span>
+         </button>
+         <div class="collapse navbar-collapse" id="navbarNav">
+             <ul class="navbar-nav ml-auto">
+                 <li class="nav-item active">
+                     <a class="nav-link" href="/">Home</a>
+                 </li>
+             </ul>
+         </div>
+     </nav>
+     <div class="container">
+        <div class="text-center">
+            <h1 class="mb-4">Dictionary Web App</h1>
+            <form action="/search" method="post" class="form-inline justify-content-center">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="word" class="sr-only">Enter the word:</label>
+                    <input type="text" id="word" name="word" class="form-control" placeholder="Enter the word" required>
+                </div>
+                <button type="submit" class="btn btn-search mb-2">Search</button>
+            </form>
+            {% if error %}
+                <p class="mt-3 alert alert-danger">{{ error }}</p>
+            {% endif %}
+            {% if suggestion %}
+                <p class="mt-3 alert alert-warning">{{ suggestion }}</p>
+            {% endif %}
+        </div>
+    </div>
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-    html = r.text
-    soup = BeautifulSoup(html, 'html.parser')
-
-    wd = soup.find('div', class_="di-title")
-    if wd is None:
-        suggestion_elements = soup.select('.suggestions-list .suggestion-link')
-        suggested_words = [suggestion.text.strip() for suggestion in suggestion_elements]
-        if suggested_words:
-            return None, f"No results found for '{word}'. Did you mean: {', '.join(suggested_words)}?"
-        return None, f"No results found for '{word}'."
-
-    part_of_speech = soup.find('div', class_="posgram dpos-g hdib lmr-5")
-    meanings = soup.find_all('div', class_='ddef_h')
-
-    word_result = {
-        'word': wd.text.strip(),
-        'part_of_speech': part_of_speech.text.strip(),
-        'meanings': [meaning.text.strip() for meaning in meanings]
-    }
-
-    return word_result, None
-
-def get_synonyms(word):
-    synonyms = []
-    for synset in wordnet.synsets(word):
-        for lemma in synset.lemmas():
-            synonyms.append(lemma.name())
-    return list(set(synonyms))
-
-def get_antonyms(word):
-    antonyms = []
-    for synset in wordnet.synsets(word):
-        for lemma in synset.lemmas():
-            if lemma.antonyms():
-                antonyms.append(lemma.antonyms()[0].name())
-    return list(set(antonyms))
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/search', methods=['POST'])
-def search():
-    word = request.form['word']
-    result, error = get_dictionary_results(word)
-
-    if error:
-        return render_template('index.html', error=error)
-
-    if result is None:
-        return render_template('index.html', suggestion=error)
-
-    synonyms = get_synonyms(word)
-    antonyms = get_antonyms(word)
-
-    # Add IPA transcription to the result
-    ipa_transcription = text_to_ipa(word)
-
-    return render_template('result.html', result=result, word=word, synonyms=synonyms, antonyms=antonyms, ipa_transcription=ipa_transcription)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+     <script>
+     function toggleNavbar() {
+            var navbar = document.querySelector('.navbar-collapse');
+            if (navbar.classList.contains('show')) {
+                navbar.classList.remove('show');
+            } else {
+                navbar.classList.add('show');
+            }
+        }
+     </script>
+ </body>
+ </html>

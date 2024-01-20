@@ -72,18 +72,15 @@
     <div class="container">
         <div class="text-center">
             <h1 class="mb-4">Dictionary Result</h1>
-            <p class="lead"><strong>Word:</strong> {{ result.word }}</p>
-            <p class="lead"><strong>Part of Speech:</strong> {{ result.part_of_speech }}</p>
+            <p class="lead"><strong>Word:</strong> {{ result['word'] }}</p>
+            <p class="lead"><strong>Part of Speech:</strong> {{ result['part_of_speech'] }}</p>
             <p class="lead"><strong>Meanings:</strong></p>
             <ul class="list-group">
-                {% for meaning in result.meanings %}
+                {% for meaning in result['meanings'] %}
                     <li class="list-group-item">{{ meaning }}</li>
                 {% endfor %}
             </ul>
-            
-            <!-- Display IPA Transcription -->
             <p class="lead"><strong>IPA Transcription:</strong> {{ ipa_transcription }}</p>
-
             {% if synonyms or antonyms %}
                 <div class="synonyms-antonyms">
                     {% if synonyms %}
@@ -96,6 +93,7 @@
                 <button class="btn btn-secondary btn-toggle" onclick="toggleSynonymsAntonyms()">Show Synonyms and Antonyms</button>
             {% endif %}
         </div>
+    </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
